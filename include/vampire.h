@@ -1,24 +1,29 @@
+#ifndef VAMPIRE_H
+#define VAMPIRE_H
 
 #include <string>
-#include <iostream>
 
 class Vampire {
-protected:
+  protected:
     std::string name;
     int age;
     bool isAlive;
     int hungerLevel;
 
-public:
+  public:
     Vampire(const std::string& name, int age);
-    
+
     // Геттеры и сеттеры
     std::string getName() const;
-    void setName(const std::string& newName);
+    void setName(const std::string& name);
     int getAge() const;
-    void setAge(int newAge);
+    void setAge(int age);
     bool getIsAlive() const;
     int getHungerLevel() const;
 
+    // Методы
     void drinkBlood();
+    void die();
 };
+
+#endif

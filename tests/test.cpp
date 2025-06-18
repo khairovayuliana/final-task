@@ -1,62 +1,120 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <sstream>
-#include <iomanip>
-#include <cmath>
+#include "original.h"
+#include "doppelganger.h"
 
-#include "point.h"
+TEST_CASE("Vampire basic functionality", "[Vampire]") {
+    Vampire v("Дэймон", 170);
 
-TEST_CASE("Point: Structure definition and initialization") {
-    Point p;
-    REQUIRE(sizeof(p.x) == sizeof(double));
-    REQUIRE(sizeof(p.y) == sizeof(double));
+    SECTION("Initial state") {
+        REQUIRE(v.getName() == "Дэймон");
+        REQUIRE(v.getAge() == 170);
+        REQUIRE(v.getIsAlive() == true);
+        REQUIRE(v.getHungerLevel() == 100);
+    }
+
+    SECTION("Drinking blood") {
+        v.drinkBlood();
+        REQUIRE(v.getHungerLevel() == 75);
+
+        std::ostringstream oss;
+        std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
+        v.drinkBlood();
+        std::cout.rdbuf(oldCout);
+
+        REQUIRE(oss.str() == "Дэймон пьёт кровь...\n");
+    }
+
+    SECTION("Dying") {
+        v.die();
+        REQUIRE(v.getIsAlive() == false);
+    }
 }
 
-TEST_CASE("Point: Initialization with zeros by default") {
-    Point p;
-    REQUIRE(std::abs(p.x) < 1e-9);  // Check if x is initialized to 0
-    REQUIRE(std::abs(p.y) < 1e-9);  // Check if y is initialized to 0
+TEST_CASE("OriginalVampire functionality", "[OriginalVampire]") {
+    OriginalVampire ov("Клаус", 1000);
+
+    SECTION("Initial state") {
+        REQUIRE(ov.getName() == "Клаус");
+        REQUIRE(ov.getAge() == 1000);
+        REQUIRE(ov.getIsAlive() == true);
+        REQUIRE(ov.getSireLine() == 0);
+    }
+
+    SECTION("Compel ability") {
+        std::ostringstream oss;
+        std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
+        ov.compel();
+        std::cout.rdbuf(oldCout);
+
+        REQUIRE(oss.str() == "Клаус использует силу принуждения!\n");
+    }
+
+    SECTION("Creating vampires") {
+        ov.createVampire();
+        REQUIRE(ov.getSireLine() == 1);
+
+        std::ostringstream oss;
+        std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
+        ov.createVampire();
+        std::cout.rdbuf(oldCout);
+
+        REQUIRE(ov.getSireLine() == 2);
+        REQUIRE(oss.str() == "Клаус создал нового вампира! Теперь в его линии 2 вампиров\n");
+    }
+
+    SECTION("Creating vampires when dead") {
+        ov.die();
+        REQUIRE(ov.getIsAlive() == false);
+
+        std::ostringstream oss;
+        std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
+        ov.createVampire();
+        std::cout.rdbuf(oldCout);
+
+        REQUIRE(ov.getSireLine() == 0);
+        REQUIRE(
+            oss.str() == "Мёртвые вампиры не могут создавать новых. Вся кровная линия мертва\n");
+    }
 }
 
-TEST_CASE("Square area of rectangle defined by two points") {
-    Point a{1.0, 2.0};
-    Point b{4.0, 6.0};
+TEST_CASE("Doppelganger functionality", "[Doppelganger]") {
+    Doppelganger d("Елена", 18, "Катерина");
 
-    double area = rectangleSquare(a, b);
-    REQUIRE(area == Approx(12.0).epsilon(1e-9));
-}
+    SECTION("Initial state") {
+        REQUIRE(d.getName() == "Елена");
+        REQUIRE(d.getAge() == 18);
+        REQUIRE(d.getIsAlive() == true);
+        REQUIRE(d.getOriginalName() == "Катерина");
+        REQUIRE(d.getBloodMagicReserve() == 100);
+    }
 
-TEST_CASE("Rectangle area: zero area when points are the same") {
-    Point a{2.5, 3.5};
-    Point b{2.5, 3.5};
-    double area = rectangleSquare(a, b);
-    REQUIRE(area == Approx(0.0).epsilon(1e-9));
-}
+    SECTION("Confusing enemies") {
+        std::ostringstream oss;
+        std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
+        d.confuseEnemy();
+        std::cout.rdbuf(oldCout);
 
-TEST_CASE("Rectangle area: negative coordinates") {
-    Point a{-2.0, -3.0};
-    Point b{-5.0, -7.0};
-    double area = rectangleSquare(a, b);
-    REQUIRE(area == Approx(12.0).epsilon(1e-9));
-}
+        REQUIRE(oss.str() == "Елена путает врагов, выдавая себя за Катерина\n");
+    }
 
-TEST_CASE("Rectangle area: mixed positive and negative coordinates") {
-    Point a{-1.0, 2.0};
-    Point b{3.0, -2.0};
-    double area = rectangleSquare(a, b);
-    REQUIRE(area == Approx(16.0).epsilon(1e-9));
-}
+    SECTION("Decreasing blood magic reserve") {
+        std::ostringstream oss;
+        std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
 
-TEST_CASE("Rectangle area: one axis same") {
-    Point a{0.0, 5.0};
-    Point b{10.0, 5.0};
-    double area = rectangleSquare(a, b);
-    REQUIRE(area == Approx(0.0).epsilon(1e-9));
-}
+        d.decreaseBloodMagicReserve();
+        REQUIRE(d.getBloodMagicReserve() == 90);
 
-TEST_CASE("Rectangle area: large values") {
-    Point a{1e6, 2e6};
-    Point b{2e6, 4e6};
-    double area = rectangleSquare(a, b);
-    REQUIRE(area == Approx(2e12).epsilon(1e-3));
+        for (int i = 0; i < 8; i++) {
+            d.decreaseBloodMagicReserve();
+        }
+
+        REQUIRE(d.getBloodMagicReserve() == 10);
+        REQUIRE(d.getIsAlive() == false);
+
+        std::cout.rdbuf(oldCout);
+
+        REQUIRE(oss.str() == "Елена умер от потери магической крови!\n");
+    }
 }
