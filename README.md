@@ -29,10 +29,10 @@
 
 Методы:
 
-- Конструктор `Vampire(string name, int age)`
+- Конструктор `Vampire(const std::string& name, int age)`
 
-- Геттеры/сеттеры для `name` и `age`
-
+- Геттеры/сеттеры для `name` и `age`, геттеры для `isAlive` и `hungerLevel`
+  
 - `void drinkBlood()` – уменьшает уровень голода на 25 единиц. Выводит сообщение: `[name] пьёт кровь...`
 
 
@@ -40,7 +40,9 @@
 
 - Новое поле: `sireLine` (количество созданных вампиров, `private`)
   
--  Конструктор `OriginalVampire(string name, int age)`, устанавливающий заданные значения полям `name` и `age`, а `sireLine` = 0.
+-  Конструктор `OriginalVampire(const std::string& name, int age)`, устанавливающий заданные значения полям `name` и `age`, а `sireLine` = 0.
+
+-  Геттер `int getSireLine() const`
 
 - Новый метод: `void compel()` – Выводит сообщение: `[name] использует силу принуждения!`
   
@@ -54,7 +56,13 @@
 
 - Новое поле: `bloodMagicReserve` (запас магии крови, целое число, 1-100, `private`)
   
-- Конструктор `Doppelganger(string name, int age, string originalName)`, устанавливающий заданные значения полям `name`, `age` и `originalName`, а `bloodMagicReserve` = 100.
+- Конструктор `Doppelganger(const std::string& name, int age, const std::string& originalName)`, устанавливающий заданные значения полям `name`, `age` и `originalName`, а `bloodMagicReserve` = 100.
+  
+-  Геттеры:
+  ```cpp
+  std::string getOriginalName() const;
+  int getBloodMagicReserve() const;
+```
 
 - Новый метод: `void confuseEnemy()` – Выводит сообщение: `[name] путает врагов, выдавая себя за [originalName]`
   
